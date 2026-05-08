@@ -1,0 +1,45 @@
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(100) UNIQUE,
+    password TEXT,
+    role VARCHAR(20) CHECK (role IN ('Parent', 'Doctor', 'Admin')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE children (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    age INTEGER,
+    parent_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE doctor_children (
+    id SERIAL PRIMARY KEY,
+    doctor_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    child_id INTEGER REFERENCES children(id) ON DELETE CASCADE
+);
+
+CREATE TABLE words (
+    id SERIAL PRIMARY KEY,
+    word TEXT NOT NULL,
+    difficulty VARCHAR(20) CHECK (difficulty IN ('easy', 'medium', 'hard'))
+);
+
+CREATE TABLE user_progress (
+    id SERIAL PRIMARY KEY,
+    child_id INTEGER REFERENCES children(id) ON DELETE CASCADE,
+    current_level VARCHAR(20) DEFAULT 'easy',
+    consecutive_failures INTEGER DEFAULT 0,
+    last_word_id INTEGER REFERENCES words(id),
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE game_results (
+    id SERIAL PRIMARY KEY,
+    child_id INTEGER REFERENCES children(id) ON DELETE CASCADE,
+    word_id INTEGER REFERENCES words(id),
+    is_pass BOOLEAN,
+    fluency_score FLOAT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
